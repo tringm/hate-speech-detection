@@ -7,6 +7,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+dynaconf = "^3.2.4"
+pydantic = "^2.5.3"
 
 
 [build-system]
@@ -29,6 +31,10 @@ warn_redundant_casts = true
 warn_return_any = true
 check_untyped_defs = true
 show_error_codes = true
+
+plugins = [
+    "pydantic.mypy"
+]
 
 
 [tool.ruff]
