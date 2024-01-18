@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from .config import CONFIGS, MODEL_DIR_PATH
 from .logging import get_logger
-from .prompts import PromptTemplate
+from .prompts import HATE_SPEECH_DETECTION_PROMPT, PromptTemplate
 
 LOGGER = get_logger("LLM")
 
@@ -23,7 +23,9 @@ class LLMService:
         try:
             self.model = Llama(model_path=str(MODEL_DIR_PATH / cfg.model_name), **cfg.model_configs)
         except Exception as e:
-            LOGGER.exception("Failed to initiate model %s with configs %s: %s", cfg.model_name, cfg.model_configs, e)
+            LOGGER.exception(
+                "Failed to initiate model `%s` with configs `%s`: %s", cfg.model_name, cfg.model_configs, e
+            )
         self.default_prompt_configs = cfg.prompt_configs
 
     def run(
@@ -37,12 +39,12 @@ class LLMService:
         try:
             llm_out = self.model.create_completion(**completion_kwargs)
         except Exception as e:
-            LOGGER.exception("Failed to get llm outputs with %s: %s", completion_kwargs, e)
+            LOGGER.exception("Failed to get llm outputs with `%s`: %s", completion_kwargs, e)
             raise LLMError() from e
         try:
             result = llm_out["choices"][0]["text"]
         except Exception as e:
-            LOGGER.exception("Failed to parse llm output %s: %s", llm_out, e)
+            LOGGER.exception("Failed to parse llm output `%s`: %s", llm_out, e)
             raise LLMError() from e
         return result  # type: ignore
 
@@ -54,7 +56,7 @@ class LLMService:
         try:
             return output_model.model_validate_json(llm_out)
         except Exception as e:
-            LOGGER.exception("Failed to parse LLM output to %s: %s", output_model.__name__, e)
+            LOGGER.exception("Failed to parse LLM output to `%s`: %s", output_model.__name__, e)
             raise LLMError() from e
 
 
@@ -64,5 +66,17 @@ def pydantic_model_to_llama_grammar(model: type[BaseModel]) -> LlamaGrammar:
         converter.visit(model.model_json_schema(), "")
         return LlamaGrammar.from_string(grammar=converter.format_grammar(), verbose=False)
     except Exception as e:
-        LOGGER.exception("Failed to generate LlamaGrammar from %s: %s", model.__name__, e)
+        LOGGER.exception("Failed to generate LlamaGrammar from `%s`: %s", model.__name__, e)
         raise LLMError() from e
+
+
+class HateSpeechDetectionOutput(BaseModel):
+    is_hate_speech: bool
+    target_group: list[str]
+    reasoning: str
+
+
+def detect_hate_speech(llm: LLMService, text: str) -> HateSpeechDetectionOutput:
+    return llm.run_parse_model(
+        prompt=HATE_SPEECH_DETECTION_PROMPT, prompt_inputs={"text": text}, output_model=HateSpeechDetectionOutput
+    )

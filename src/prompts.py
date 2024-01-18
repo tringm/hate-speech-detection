@@ -19,5 +19,18 @@ class PromptTemplate(BaseModel):
         try:
             return self.template.format(**{k: inputs[k] for k in self.input_keys})
         except Exception as e:
-            LOGGER.exception("Failed to format prompt %s with value %s: %s", self.template, inputs, e)
+            LOGGER.exception("Failed to format prompt `%s` with `%s`: %s", self.template, inputs, e)
             raise
+
+
+HATE_SPEECH_DETECTION_PROMPT = PromptTemplate(
+    template="""Determine if the following text is a hate speech.\
+  Explain step-by-step the reasoning and identify one or multiple target groups if the text is a hate speech.
+
+The text is enclosed in backticks:
+```
+{text}
+```
+""",
+    input_keys=["text"],
+)
