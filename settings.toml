@@ -1,2 +1,15 @@
 [default]
 log_level = "INFO"
+
+[default.llm]
+model_name = "phi-2.Q4_K_M.gguf"
+
+[default.llm.model_configs]
+n_ctx = 2048  # model context length
+n_threads = 16  # CPU thread
+n_gpu_layers = 0  # Disable GPU
+verbose = false
+
+[default.llm.prompt_configs]
+max_tokens = 2048
+temperature = 0.1
