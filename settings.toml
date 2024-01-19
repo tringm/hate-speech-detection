@@ -10,7 +10,7 @@ n_threads = 16  # CPU thread
 n_gpu_layers = 0  # Disable GPU
 verbose = false
 
-[default.llm.prompt_configs]
+[default.llm.run_configs]
 max_tokens = 2048
 temperature = 0.1
 

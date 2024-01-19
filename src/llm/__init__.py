@@ -27,7 +27,7 @@ class LLMService:
             msg = "Failed to initiate model"
             LOGGER.exception("%s `%s` with configs `%s`: %s", msg, cfg.model_name, cfg.model_configs, e)
             raise LLMError(msg) from e
-        self.default_prompt_configs = cfg.prompt_configs
+        self.default_run_configs = cfg.run_configs
 
     def run(
         self,
@@ -36,12 +36,12 @@ class LLMService:
         **kwargs: Any,
     ) -> str:
         formatted_prompt = prompt.format_inputs(inputs=prompt_inputs)
-        completion_kwargs = {**self.default_prompt_configs, **kwargs, "prompt": formatted_prompt}
+        run_configs = {**self.default_run_configs, **kwargs, "prompt": formatted_prompt}
         try:
-            llm_out = self.model.create_completion(**completion_kwargs)
+            llm_out = self.model.create_completion(**run_configs)
         except Exception as e:
             msg = "Failed to get llm outputs"
-            LOGGER.exception("%s with `%s`: %s", msg, completion_kwargs, e)
+            LOGGER.exception("%s with `%s`: %s", msg, run_configs, e)
             raise LLMError(msg) from e
         try:
             result = llm_out["choices"][0]["text"]

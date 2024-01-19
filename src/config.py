@@ -21,7 +21,7 @@ class LLMConfig(BaseModel):
 
     model_name: str
     model_configs: dict
-    prompt_configs: dict
+    run_configs: dict
 
 
 class UvicornConfig(BaseModel):
