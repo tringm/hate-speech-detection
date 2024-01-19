@@ -1,0 +1,30 @@
+version: '3.8'
+
+x-postgres-config: &postgres-config
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_DB: db
+
+services:
+  db:
+    image: postgres:16.1
+    ports:
+      - "5432:5432"
+    environment:
+      <<: *postgres-config
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  db-integration-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DYNACONF_DB__async_conn_str: "postgresql+asyncpg://postgres:postgres@db:5432/db"
+    command: pytest -s --run-db-integration tests/db

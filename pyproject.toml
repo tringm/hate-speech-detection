@@ -21,6 +21,8 @@ pytest = "*"
 pytest-cov = "*"
 scikit-learn = "^1.4.0"
 httpx = "^0.26.0"
+pytest-alembic = "^0.10.7"
+pytest-asyncio = "^0.23.3"
 
 
 [build-system]
