@@ -14,6 +14,7 @@ llama-cpp-python = "^0.2.29"
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
 pytest-cov = "*"
+scikit-learn = "^1.4.0"
 
 
 [build-system]
