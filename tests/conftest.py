@@ -2,7 +2,11 @@ import os
 from pathlib import Path
 
 import pytest
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+from httpx import Client
 
+from src.app import app, get_llm_service
 from src.llm import LLMService
 from tests import TEST_DIR_PATH, TEST_OUTPUTS_DIR_PATH
 
@@ -52,3 +56,16 @@ def run_comparison(
     comp_enabled = request.config.getoption(_FLAGS.run_comparison)
     if comp_enabled and test_case_out_file.exists():
         request.addfinalizer(finalizer=lambda: os.system(f"git difftool {test_case_out_file}"))  # noqa: S605
+
+
+@pytest.fixture(scope="session")
+def application(llm_service: LLMService) -> FastAPI:
+    app.dependency_overrides = {
+        get_llm_service: lambda: llm_service,
+    }
+    return app
+
+
+@pytest.fixture(scope="session")
+def client(application: FastAPI) -> Client:
+    return TestClient(app=application)

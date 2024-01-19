@@ -24,10 +24,16 @@ class LLMConfig(BaseModel):
     prompt_configs: dict
 
 
+class UvicornConfig(BaseModel):
+    host: str
+    port: int
+
+
 class RootConfig(BaseModel):
     log_level: str
 
     llm: LLMConfig
+    uvicorn: UvicornConfig
 
 
 CONFIGS = RootConfig.model_validate({k.lower(): v for k, v in settings.as_dict().items()})

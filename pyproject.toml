@@ -10,11 +10,14 @@ python = "^3.11"
 dynaconf = "^3.2.4"
 pydantic = "^2.5.3"
 llama-cpp-python = "^0.2.29"
+fastapi = "^0.109.0"
+uvicorn = "^0.26.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
 pytest-cov = "*"
 scikit-learn = "^1.4.0"
+httpx = "^0.26.0"
 
 
 [build-system]
