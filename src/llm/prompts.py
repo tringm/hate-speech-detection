@@ -2,7 +2,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
-from .logging import get_logger
+from src.logging import get_logger
 
 LOGGER = get_logger(__name__)
 

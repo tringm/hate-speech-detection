@@ -1,7 +1,8 @@
 from pydantic import BaseModel
 
 from src.llm import LLMService
-from src.prompts import HATE_SPEECH_DETECTION_PROMPT, INPUT_TEXT_KEY
+
+from .prompts import HATE_SPEECH_DETECTION_PROMPT, INPUT_TEXT_KEY
 
 
 class DetectHateSpeechResponse(BaseModel):

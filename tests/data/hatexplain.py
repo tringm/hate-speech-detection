@@ -4,7 +4,7 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
-from src.detect_hate_speech import DetectHateSpeechResponse
+from src.llm.detect_hate_speech import DetectHateSpeechResponse
 from src.logging import get_logger
 from tests import DATA_DIR_PATH
 

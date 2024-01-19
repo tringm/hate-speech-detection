@@ -1,6 +1,6 @@
 import pytest
 
-from src.prompts import PromptTemplate
+from src.llm.prompts import PromptTemplate
 
 SAMPLE_PROMPT = PromptTemplate(template="Some text: {text}", input_keys=["text"])
 

@@ -4,8 +4,9 @@ from llama_cpp import Llama
 from llama_cpp.llama_grammar import LlamaGrammar, SchemaConverter
 from pydantic import BaseModel
 
-from .config import CONFIGS, MODEL_DIR_PATH
-from .logging import get_logger
+from src.config import CONFIGS, MODEL_DIR_PATH
+from src.logging import get_logger
+
 from .prompts import PromptTemplate
 
 LOGGER = get_logger("LLM")

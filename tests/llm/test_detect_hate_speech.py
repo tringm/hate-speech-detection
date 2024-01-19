@@ -3,8 +3,8 @@ from pathlib import Path
 import pytest
 from sklearn import metrics
 
-from src.detect_hate_speech import llm_detect_hate_speech
 from src.llm import LLMService
+from src.llm.detect_hate_speech import llm_detect_hate_speech
 from src.logging import logger
 from tests.data.hatexplain import load_hatexplain_detection_cases
 

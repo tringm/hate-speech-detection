@@ -7,10 +7,10 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
-from src.detect_hate_speech import DetectHateSpeechResponse, llm_detect_hate_speech
+from src.llm import LLMService
+from src.llm.detect_hate_speech import DetectHateSpeechResponse, llm_detect_hate_speech
 
 from .config import CONFIGS
-from .llm import LLMService
 from .logging import logger
 
 app = FastAPI()
