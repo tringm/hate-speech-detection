@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from .config import CONFIGS, MODEL_DIR_PATH
 from .logging import get_logger
-from .prompts import HATE_SPEECH_DETECTION_PROMPT, INPUT_TEXT_KEY, PromptTemplate
+from .prompts import PromptTemplate
 
 LOGGER = get_logger("LLM")
 
@@ -72,17 +72,3 @@ def pydantic_model_to_llama_grammar(model: type[BaseModel]) -> LlamaGrammar:
         msg = "Failed to generate LlamaGrammar"
         LOGGER.exception("%s from `%s`: %s", msg, model.__name__, e)
         raise LLMError(msg) from e
-
-
-class HateSpeechDetectionOutput(BaseModel):
-    is_hate_speech: bool
-    target_of_hate: list[str]
-    reasoning: str
-
-
-def detect_hate_speech(llm: LLMService, text: str) -> HateSpeechDetectionOutput:
-    return llm.run_parse_model(
-        prompt=HATE_SPEECH_DETECTION_PROMPT,
-        prompt_inputs={INPUT_TEXT_KEY: text},
-        output_model=HateSpeechDetectionOutput,
-    )

@@ -3,23 +3,24 @@ from pathlib import Path
 import pytest
 from sklearn import metrics
 
-from src.llm import LLMService, detect_hate_speech
+from src.detect_hate_speech import llm_detect_hate_speech
+from src.llm import LLMService
 from src.logging import logger
 from tests.data.hatexplain import load_hatexplain_detection_cases
+
+EXAMPLE_NOT_HATE_SPEECH = "We have enough problems in the world. Stop hating on each other"
+EXAMPLE_HATE_SPEECH = "Speak English in America ching chong"
 
 
 @pytest.mark.parametrize(
     "text, is_hate_speech",
     [
-        (
-            "We have enough problems in the world. Stop hating on each other",
-            False,
-        ),
-        ("Speak English in America ching chong", True),
+        (EXAMPLE_NOT_HATE_SPEECH, False),
+        (EXAMPLE_HATE_SPEECH, True),
     ],
 )
 def test_detect_hate_speech_simple(llm_service: LLMService, text: str, is_hate_speech: bool) -> None:
-    res = detect_hate_speech(llm=llm_service, text=text)
+    res = llm_detect_hate_speech(llm=llm_service, text=text)
     assert res.is_hate_speech == is_hate_speech, f"Expected is_hate_speech {is_hate_speech}. Got {res}"
     if is_hate_speech:
         assert res.target_of_hate, f"Expected identify target. Got {res.target_of_hate}"
@@ -37,7 +38,7 @@ def test_evaluate_detect_hate_speech_hatexplain(llm_service: LLMService, test_ca
             f.write(case.model_dump_json(indent=2) + "\n")
             y_true.append(case.is_hate_speech)
             try:
-                res = detect_hate_speech(llm=llm_service, text=case.text)
+                res = llm_detect_hate_speech(llm=llm_service, text=case.text)
             except Exception as e:
                 logger.exception(e)
                 y_pred.append(-1)

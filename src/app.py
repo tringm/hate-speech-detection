@@ -3,7 +3,11 @@ from typing import Annotated
 
 import uvicorn
 from fastapi import Depends, FastAPI, Request, status
+from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
+from pydantic import BaseModel
+
+from src.detect_hate_speech import DetectHateSpeechResponse, llm_detect_hate_speech
 
 from .config import CONFIGS
 from .llm import LLMService
@@ -14,6 +18,11 @@ app = FastAPI()
 
 class PATHS:
     health_check = "/health/"
+    detect_hate_speech = "/detect_hate_speech/"
+
+
+class DetectHateSpeechRequest(BaseModel):
+    text: str
 
 
 @app.middleware("http")
@@ -27,6 +36,11 @@ async def handling_exception(request: Request, call_next: Callable) -> Response:
         )
 
 
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> Response:
+    return JSONResponse(status_code=status.HTTP_400_BAD_REQUEST, content={"detail": exc.errors()})
+
+
 def get_llm_service() -> LLMService:
     return LLMService()
 
@@ -36,6 +50,14 @@ async def health_check(
     llm_service: Annotated[LLMService, Depends(get_llm_service)],
 ) -> Response:
     return JSONResponse(content={"status": "OK"})
+
+
+@app.post(path=PATHS.detect_hate_speech)
+async def detect_hate_speech(
+    llm_service: Annotated[LLMService, Depends(get_llm_service)],
+    req: DetectHateSpeechRequest,
+) -> DetectHateSpeechResponse:
+    return llm_detect_hate_speech(llm=llm_service, text=req.text)
 
 
 def main() -> None:
