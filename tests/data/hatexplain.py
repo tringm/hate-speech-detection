@@ -4,6 +4,7 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
+from src.llm import HateSpeechDetectionOutput
 from src.logging import get_logger
 from tests import DATA_DIR_PATH
 
@@ -58,11 +59,8 @@ class HatexplainCase(BaseModel):
         return " ".join(self.post_tokens)
 
 
-class HateSpeechDetectionCase(BaseModel):
+class HateSpeechDetectionCase(HateSpeechDetectionOutput):
     text: str
-    is_hate_speech: bool
-    target_group: list[str]
-    reasoning: str
 
 
 def load_hatexplain_detection_cases() -> Iterator[HateSpeechDetectionCase]:
@@ -90,7 +88,7 @@ def build_hatexplain_detection_cases() -> None:
                 u_case = HateSpeechDetectionCase(
                     text=case.text,
                     is_hate_speech=case.unanimous_label != HatexplainLabel.normal,
-                    target_group=case.all_targets,
+                    target_of_hate=case.all_targets,
                     reasoning=" ".join(case.all_rationale_tokens),
                 )
                 u_hate_f.write(u_case.model_dump_json())

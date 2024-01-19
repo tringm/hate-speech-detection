@@ -6,6 +6,8 @@ from .logging import get_logger
 
 LOGGER = get_logger(__name__)
 
+INPUT_TEXT_KEY = "text"
+
 
 class PromptTemplate(BaseModel):
     template: str
@@ -24,13 +26,13 @@ class PromptTemplate(BaseModel):
 
 
 HATE_SPEECH_DETECTION_PROMPT = PromptTemplate(
-    template="""Determine if the following text is a hate speech.\
-  Explain step-by-step the reasoning and identify one or multiple target groups if the text is a hate speech.
+    template=f"""Determine if the following text is a hate speech.
+Explain in step by step the reasoning and identify the target of hate if the text is a hate speech.
 
 The text is enclosed in backticks:
 ```
-{text}
+{{{INPUT_TEXT_KEY}}}
 ```
 """,
-    input_keys=["text"],
+    input_keys=[INPUT_TEXT_KEY],
 )
