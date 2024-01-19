@@ -23,9 +23,9 @@ class LLMService:
         try:
             self.model = Llama(model_path=str(MODEL_DIR_PATH / cfg.model_name), **cfg.model_configs)
         except Exception as e:
-            LOGGER.exception(
-                "Failed to initiate model `%s` with configs `%s`: %s", cfg.model_name, cfg.model_configs, e
-            )
+            msg = "Failed to initiate model"
+            LOGGER.exception("%s `%s` with configs `%s`: %s", msg, cfg.model_name, cfg.model_configs, e)
+            raise LLMError(msg) from e
         self.default_prompt_configs = cfg.prompt_configs
 
     def run(
@@ -39,13 +39,15 @@ class LLMService:
         try:
             llm_out = self.model.create_completion(**completion_kwargs)
         except Exception as e:
-            LOGGER.exception("Failed to get llm outputs with `%s`: %s", completion_kwargs, e)
-            raise LLMError() from e
+            msg = "Failed to get llm outputs"
+            LOGGER.exception("%s with `%s`: %s", msg, completion_kwargs, e)
+            raise LLMError(msg) from e
         try:
             result = llm_out["choices"][0]["text"]
         except Exception as e:
-            LOGGER.exception("Failed to parse llm output `%s`: %s", llm_out, e)
-            raise LLMError() from e
+            msg = "Failed to parse llm output"
+            LOGGER.exception("%s `%s`: %s", msg, llm_out, e)
+            raise LLMError(msg) from e
         return result  # type: ignore
 
     def run_parse_model(
@@ -56,8 +58,9 @@ class LLMService:
         try:
             return output_model.model_validate_json(llm_out)
         except Exception as e:
-            LOGGER.exception("Failed to parse LLM output to `%s`: %s", output_model.__name__, e)
-            raise LLMError() from e
+            msg = "Failed to parse LLM output"
+            LOGGER.exception("%s to `%s`: %s", msg, output_model.__name__, e)
+            raise LLMError(msg) from e
 
 
 def pydantic_model_to_llama_grammar(model: type[BaseModel]) -> LlamaGrammar:
@@ -66,8 +69,9 @@ def pydantic_model_to_llama_grammar(model: type[BaseModel]) -> LlamaGrammar:
         converter.visit(model.model_json_schema(), "")
         return LlamaGrammar.from_string(grammar=converter.format_grammar(), verbose=False)
     except Exception as e:
-        LOGGER.exception("Failed to generate LlamaGrammar from `%s`: %s", model.__name__, e)
-        raise LLMError() from e
+        msg = "Failed to generate LlamaGrammar"
+        LOGGER.exception("%s from `%s`: %s", msg, model.__name__, e)
+        raise LLMError(msg) from e
 
 
 class HateSpeechDetectionOutput(BaseModel):
