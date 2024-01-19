@@ -12,6 +12,9 @@ pydantic = "^2.5.3"
 llama-cpp-python = "^0.2.29"
 fastapi = "^0.109.0"
 uvicorn = "^0.26.0"
+alembic = "^1.13.1"
+sqlmodel = "^0.0.14"
+asyncpg = "^0.29.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "*"
@@ -120,9 +123,13 @@ exclude = [
     "node_modules",
     "venv",
 ]
-per-file-ignores = {}
 
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 target-version = "py311"
+
+[tool.ruff.per-file-ignores]
+"migrations/**/*.py" = [
+    "INP001",  # INP001 - Requires __init__.py
+]

@@ -17,3 +17,6 @@ temperature = 0.1
 [default.uvicorn]
 host = "0.0.0.0"
 port = 8000
+
+[default.db]
+async_conn_str = "postgresql+asyncpg://postgres:postgres@localhost:5432/db"

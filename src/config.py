@@ -29,11 +29,16 @@ class UvicornConfig(BaseModel):
     port: int
 
 
+class DBConfig(BaseModel):
+    async_conn_str: str
+
+
 class RootConfig(BaseModel):
     log_level: str
 
     llm: LLMConfig
     uvicorn: UvicornConfig
+    db: DBConfig
 
 
 CONFIGS = RootConfig.model_validate({k.lower(): v for k, v in settings.as_dict().items()})
