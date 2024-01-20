@@ -6,10 +6,13 @@ from fastapi import Depends, FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.db import get_async_session
 from src.db.models import DetectHateSpeechResponse
 from src.llm import LLMService
-from src.llm.detect_hate_speech import LLMDetectHateSpeechResult, llm_detect_hate_speech
+from src.llm.detect_hate_speech import llm_detect_hate_speech
+
 from .config import CONFIGS
 from .logging import logger
 
@@ -48,6 +51,7 @@ def get_llm_service() -> LLMService:
 @app.get(path=PATHS.health_check)
 async def health_check(
     llm_service: Annotated[LLMService, Depends(get_llm_service)],
+    session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> Response:
     return JSONResponse(content={"status": "OK"})
 
@@ -55,10 +59,18 @@ async def health_check(
 @app.post(path=PATHS.detect_hate_speech)
 async def detect_hate_speech(
     llm_service: Annotated[LLMService, Depends(get_llm_service)],
+    session: Annotated[AsyncSession, Depends(get_async_session)],
     req: DetectHateSpeechRequest,
 ) -> DetectHateSpeechResponse:
     llm_res = llm_detect_hate_speech(llm=llm_service, text=req.text)
-    resp = DetectHateSpeechResponse(text=req.text, is_hate_speech=llm_res.is_hate_speech, target_of_hate=llm_res.target_of_hate, reasoning=llm_res.reasoning)
+    resp = DetectHateSpeechResponse(
+        text=req.text,
+        is_hate_speech=llm_res.is_hate_speech,
+        target_of_hate=llm_res.target_of_hate,
+        reasoning=llm_res.reasoning,
+    )
+    session.add(resp)
+    await session.commit()
     return resp
 
 
