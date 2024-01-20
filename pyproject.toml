@@ -42,6 +42,7 @@ log_date_format = "%Y-%m-%dT%H:%M:%S.%f"
 
 markers = [
     "evaluation: evaluation tests, require --run-eval",
+    "integration: integration tests, require --run-integration",
 ]
 
 

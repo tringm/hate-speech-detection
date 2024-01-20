@@ -5,6 +5,11 @@ x-postgres-config: &postgres-config
   POSTGRES_PASSWORD: postgres
   POSTGRES_DB: db
 
+x-bind-models-volume: &bind-models-volume
+  type: bind
+  source: ./models
+  target: /app/models
+
 services:
   db:
     image: postgres:16.1
@@ -18,13 +23,36 @@ services:
       timeout: 5s
       retries: 5
 
-  db-integration-tests:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8080:8000"
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8000/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      DYNACONF_uvicorn__port: 8000
+      DYNACONF_DB__async_conn_str: "postgresql+asyncpg://postgres:postgres@db:5432/db"
+    volumes:
+      - *bind-models-volume
+
+  integration-tests:
     build:
       context: .
       dockerfile: Dockerfile.test
     depends_on:
-      db:
+      app:
         condition: service_healthy
     environment:
       DYNACONF_DB__async_conn_str: "postgresql+asyncpg://postgres:postgres@db:5432/db"
-    command: pytest -s --run-db-integration tests/db
+      TEST_API_URL: http://app:8000/
+    command: pytest -s --run-integration tests/db tests/api
+    volumes:
+      - *bind-models-volume
