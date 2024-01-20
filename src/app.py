@@ -7,9 +7,9 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 
+from src.db.models import DetectHateSpeechResponse
 from src.llm import LLMService
-from src.llm.detect_hate_speech import DetectHateSpeechResponse, llm_detect_hate_speech
-
+from src.llm.detect_hate_speech import LLMDetectHateSpeechResult, llm_detect_hate_speech
 from .config import CONFIGS
 from .logging import logger
 
@@ -57,7 +57,9 @@ async def detect_hate_speech(
     llm_service: Annotated[LLMService, Depends(get_llm_service)],
     req: DetectHateSpeechRequest,
 ) -> DetectHateSpeechResponse:
-    return llm_detect_hate_speech(llm=llm_service, text=req.text)
+    llm_res = llm_detect_hate_speech(llm=llm_service, text=req.text)
+    resp = DetectHateSpeechResponse(text=req.text, is_hate_speech=llm_res.is_hate_speech, target_of_hate=llm_res.target_of_hate, reasoning=llm_res.reasoning)
+    return resp
 
 
 def main() -> None:

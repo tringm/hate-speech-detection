@@ -2,7 +2,7 @@ import uuid as uuid_pkg
 
 from pydantic import AwareDatetime
 from sqlalchemy import text
-from sqlmodel import JSON, Column, DateTime, Field, SQLModel
+from sqlmodel import ARRAY, Column, DateTime, Field, JSON, SQLModel, String
 
 
 class BaseModel(SQLModel):
@@ -28,3 +28,12 @@ class LLMPromptRun(UUIDModelMixin, table=True):  # type: ignore
     llm_outputs: dict = Field(sa_column=Column(JSON), default={})
     start_run: AwareDatetime | None = Field(sa_column=Column(DateTime(timezone=True)))
     end_run: AwareDatetime | None = Field(sa_column=Column(DateTime(timezone=True)))
+
+
+class DetectHateSpeechResponse(UUIDModelMixin, table=True):  # type: ignore
+    __tablename__ = "hate_speech_detection"
+
+    text: str
+    is_hate_speech: bool
+    target_of_hate: list[str] = Field(sa_column=Column(ARRAY(String)))
+    reasoning: str

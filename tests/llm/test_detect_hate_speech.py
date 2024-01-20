@@ -35,7 +35,7 @@ def test_evaluate_detect_hate_speech_hatexplain(llm_service: LLMService, test_ca
     with test_case_out_file.open(mode="w") as f:
         for case in load_hatexplain_detection_cases():
             f.write("Test case:\n")
-            f.write(case.model_dump_json(indent=2) + "\n")
+            f.write(case.model_dump_json(indent=2, exclude={"uuid"}) + "\n")
             y_true.append(case.is_hate_speech)
             try:
                 res = llm_detect_hate_speech(llm=llm_service, text=case.text)

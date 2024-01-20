@@ -1,7 +1,7 @@
 import pytest
 from httpx import Client, Response, codes
 
-from src.app import PATHS, DetectHateSpeechRequest, DetectHateSpeechResponse
+from src.app import DetectHateSpeechRequest, DetectHateSpeechResponse, PATHS
 from tests.llm.test_detect_hate_speech import EXAMPLE_HATE_SPEECH, EXAMPLE_NOT_HATE_SPEECH
 
 
