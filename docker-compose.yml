@@ -10,11 +10,14 @@ x-bind-models-volume: &bind-models-volume
   source: ./models
   target: /app/models
 
+x-dynaconf-db-conn-str: &dynaconf-db-conn-str
+  DYNACONF_DB__async_conn_str: "postgresql+asyncpg://postgres:postgres@db:5432/db"
+
 services:
   db:
     image: postgres:16.1
     ports:
-      - "5432:5432"
+      - "5435:5432"
     environment:
       <<: *postgres-config
     healthcheck:
@@ -23,13 +26,26 @@ services:
       timeout: 5s
       retries: 5
 
-  app:
+  db-migration:
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      <<: *dynaconf-db-conn-str
+    command:
+      - /bin/bash
+      - -c
+      - "alembic upgrade head"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db-migration
     ports:
       - "8080:8000"
     healthcheck:
@@ -39,7 +55,7 @@ services:
       retries: 5
     environment:
       DYNACONF_uvicorn__port: 8000
-      DYNACONF_DB__async_conn_str: "postgresql+asyncpg://postgres:postgres@db:5432/db"
+      <<: *dynaconf-db-conn-str
     volumes:
       - *bind-models-volume
 
@@ -51,7 +67,7 @@ services:
       app:
         condition: service_healthy
     environment:
-      DYNACONF_DB__async_conn_str: "postgresql+asyncpg://postgres:postgres@db:5432/db"
+      <<: *dynaconf-db-conn-str
       TEST_API_URL: http://app:8000/
     command: pytest -s --run-integration tests/db tests/api
     volumes:

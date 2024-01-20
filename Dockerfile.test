@@ -12,9 +12,9 @@ RUN poetry config virtualenvs.create false
 RUN poetry install --with=dev --no-root
 
 COPY src ./src
+COPY settings.toml .
 COPY migrations ./migrations
 COPY alembic.ini .
-COPY settings.toml .
 RUN mkdir "models"
 
 COPY tests ./tests

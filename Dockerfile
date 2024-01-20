@@ -13,6 +13,8 @@ RUN poetry install --only main --no-root
 
 COPY src ./src
 COPY settings.toml .
+COPY migrations ./migrations
+COPY alembic.ini .
 RUN mkdir "models"
 
 CMD ["python", "-m", "src.app"]
