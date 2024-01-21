@@ -41,10 +41,17 @@ class LLMRunSQLModel(UUIDModelMixin, LLMRun, table=True):
     end_run: AwareDatetime | None = Field(sa_column=Column(DateTime(timezone=True)))
 
 
-class DetectHateSpeechResult(UUIDModelMixin, table=True):  # type: ignore
+class DetectHateSpeechResult(BaseModel):
+    is_hate_speech: bool
+    target_of_hate: list[str]
+    reasoning: str
+
+
+class DetectHateSpeech(DetectHateSpeechResult):
+    text: str
+
+
+class DetectHateSpeechSQLModel(UUIDModelMixin, DetectHateSpeech, table=True):
     __tablename__ = "detect_hate_speech_result"
 
-    text: str
-    is_hate_speech: bool
     target_of_hate: list[str] = Field(sa_column=Column(ARRAY(String)))
-    reasoning: str

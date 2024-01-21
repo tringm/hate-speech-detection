@@ -4,7 +4,7 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
-from src.db.models import DetectHateSpeechResult
+from src.db.models import DetectHateSpeech
 from src.logging import get_logger
 from tests import DATA_DIR_PATH
 
@@ -59,11 +59,11 @@ class HatexplainCase(BaseModel):
         return " ".join(self.post_tokens)
 
 
-def load_hatexplain_detection_cases() -> Iterator[DetectHateSpeechResult]:
+def load_hatexplain_detection_cases() -> Iterator[DetectHateSpeech]:
     with gzip.open(HATEXPLAIN_DETECTION_CASE_DATA_FILE, mode="rt") as in_f:
         for line in in_f:
             try:
-                yield DetectHateSpeechResult.model_validate_json(json_data=line.strip())
+                yield DetectHateSpeech.model_validate_json(json_data=line.strip())
             except Exception as e:
                 LOGGER.error("Failed to parse HateSpeechDetectionCase %s: %s", line, e)
                 continue
@@ -81,7 +81,7 @@ def build_hatexplain_detection_cases() -> None:
                 LOGGER.error("Failed to parse HatexplainCase %s: %s", line, e)
                 continue
             if case.unanimous_label:
-                u_case = DetectHateSpeechResult(
+                u_case = DetectHateSpeech(
                     text=case.text,
                     is_hate_speech=case.unanimous_label != HatexplainLabel.normal,
                     target_of_hate=case.all_targets,

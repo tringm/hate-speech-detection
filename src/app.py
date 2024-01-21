@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_async_session
-from src.db.models import DetectHateSpeechResult
+from src.db.models import DetectHateSpeechSQLModel
 from src.llm import LLMService
 from src.llm.detect_hate_speech import llm_detect_hate_speech
 
@@ -61,9 +61,9 @@ async def detect_hate_speech(
     llm_service: Annotated[LLMService, Depends(get_llm_service)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
     req: DetectHateSpeechRequest,
-) -> DetectHateSpeechResult:
+) -> DetectHateSpeechSQLModel:
     llm_res = llm_detect_hate_speech(llm=llm_service, text=req.text)
-    resp = DetectHateSpeechResult(
+    resp = DetectHateSpeechSQLModel(
         text=req.text,
         is_hate_speech=llm_res.is_hate_speech,
         target_of_hate=llm_res.target_of_hate,
