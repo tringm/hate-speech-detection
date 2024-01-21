@@ -109,11 +109,11 @@ docker compose run integration-tests
 To run long-running evaluation tests (e.g.: LLM evaluation):
 
 ```shell
-pytest --run-evaluation -k evaluation
+pytest --run-eval -k evaluation
 ```
 
 To enable comparison mode that compares the generated output after test finishes:
 
 ```shell
-pytest --output-diff --run-evaluation -k evaluation
+pytest --output-diff --run-eval -k evaluation
 ```
