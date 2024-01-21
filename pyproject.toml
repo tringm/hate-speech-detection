@@ -37,6 +37,8 @@ addopts = """\
     --no-cov-on-fail \
 """
 
+
+log_cli = true
 log_format = "%(asctime)s %(levelname)s %(message)s"
 log_date_format = "%Y-%m-%dT%H:%M:%S.%f"
 

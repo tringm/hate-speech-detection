@@ -1,15 +1,15 @@
 import uuid as uuid_pkg
 
-from pydantic import AwareDatetime
+from pydantic import AwareDatetime, BaseModel
 from sqlalchemy import text
 from sqlmodel import ARRAY, JSON, Column, DateTime, Field, SQLModel, String
 
 
-class BaseModel(SQLModel):
+class BaseSQLModel(SQLModel):
     pass
 
 
-class UUIDModelMixin(BaseModel):
+class UUIDModelMixin(BaseSQLModel):
     uuid: uuid_pkg.UUID = Field(
         default_factory=uuid_pkg.uuid4,
         primary_key=True,
@@ -19,15 +19,24 @@ class UUIDModelMixin(BaseModel):
     )
 
 
-class LLMPromptRun(UUIDModelMixin, table=True):  # type: ignore
-    __tablename__ = "llm_prompt_run"
-
-    success: bool
+class LLMRun(BaseModel):
     prompt: str
     llm_model_name: str
-    llm_model_configs: dict = Field(sa_column=Column(JSON), default={})
-    run_configs: dict = Field(sa_column=Column(JSON), default={})
-    llm_outputs: dict = Field(sa_column=Column(JSON), default={})
+    success: bool
+    llm_model_configs: dict
+    run_configs: dict
+    llm_outputs: dict | None = None
+    error: str | None = None
+    start_run: AwareDatetime | None = None
+    end_run: AwareDatetime | None = None
+
+
+class LLMRunSQLModel(UUIDModelMixin, LLMRun, table=True):
+    __tablename__ = "llm_run"
+
+    llm_model_configs: dict = Field(sa_column=Column(JSON), default_factory=dict)
+    run_configs: dict = Field(sa_column=Column(JSON), default_factory=dict)
+    llm_outputs: dict = Field(sa_column=Column(JSON), default_factory=dict)
     start_run: AwareDatetime | None = Field(sa_column=Column(DateTime(timezone=True)))
     end_run: AwareDatetime | None = Field(sa_column=Column(DateTime(timezone=True)))
 

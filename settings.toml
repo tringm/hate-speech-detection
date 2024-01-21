@@ -19,4 +19,4 @@ host = "0.0.0.0"
 port = 8000
 
 [default.db]
-async_conn_str = "postgresql+asyncpg://postgres:postgres@localhost:5432/db"
+async_conn_str = "postgresql+asyncpg://postgres:postgres@localhost:5435/db"
