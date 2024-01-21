@@ -3,9 +3,9 @@ from pathlib import Path
 import pytest
 from sklearn import metrics
 
+from src.db.models import DetectHateSpeechResult
 from src.llm import LLMService
 from src.llm.detect_hate_speech import llm_detect_hate_speech
-from src.logging import logger
 from tests.data.hatexplain import load_hatexplain_detection_cases
 
 EXAMPLE_NOT_HATE_SPEECH = "We have enough problems in the world. Stop hating on each other"
@@ -20,7 +20,10 @@ EXAMPLE_HATE_SPEECH = "Speak English in America ching chong"
     ],
 )
 def test_detect_hate_speech_simple(llm_service: LLMService, text: str, is_hate_speech: bool) -> None:
-    res = llm_detect_hate_speech(llm=llm_service, text=text)
+    llm_run = llm_detect_hate_speech(llm=llm_service, text=text)
+    assert llm_run.success
+    assert isinstance(llm_run.parsed_output, DetectHateSpeechResult)
+    res = llm_run.parsed_output
     assert res.is_hate_speech == is_hate_speech, f"Expected is_hate_speech {is_hate_speech}. Got {res}"
     if is_hate_speech:
         assert res.target_of_hate, f"Expected identify target. Got {res.target_of_hate}"
@@ -37,15 +40,21 @@ def test_evaluate_detect_hate_speech_hatexplain(llm_service: LLMService, test_ca
             f.write("Test case:\n")
             f.write(case.model_dump_json(indent=2, exclude={"uuid"}) + "\n")
             y_true.append(case.is_hate_speech)
+
+            f.write("Result:\n")
             try:
-                res = llm_detect_hate_speech(llm=llm_service, text=case.text)
+                llm_run = llm_detect_hate_speech(llm=llm_service, text=case.text)
             except Exception as e:
-                logger.exception(e)
+                f.write(str(e) + "\n")
                 y_pred.append(-1)
                 continue
-            y_pred.append(res.is_hate_speech)
-            f.write("Result:\n")
-            f.write(res.model_dump_json(indent=2) + "\n")
+            if not llm_run.success or not llm_run.parsed_output:
+                f.write(f"{llm_run.error}\n")
+                y_pred.append(-1)
+                continue
+            detection_res = llm_run.parsed_output
+            y_pred.append(detection_res.is_hate_speech)
+            f.write(detection_res.model_dump_json(indent=2) + "\n")
             f.write("-" * 10 + "\n")
 
         precision, recall, f_score, support = metrics.precision_recall_fscore_support(

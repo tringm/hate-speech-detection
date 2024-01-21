@@ -98,7 +98,8 @@ select = [
     "T20", # flake8-print"
 ]
 ignore = [
-    "S101", # S101: Allow the use of assert
+    "S101", # Allow the use of assert,
+    "UP017",  # Convert datetime.timezone.utc to datetime.UTC
 ]
 
 # Allow autofix for all enabled rules (when `--fix`) is provided.
