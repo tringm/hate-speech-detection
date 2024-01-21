@@ -2,7 +2,8 @@ import pytest
 from httpx import Client, Response, codes
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.app import PATHS, DetectHateSpeechRequest, DetectHateSpeechSQLModel
+from src.app import PATHS, DetectHateSpeechRequest
+from src.db.models import DetectHateSpeechSQLModel, LLMRunSQLModel
 from tests.llm.test_detect_hate_speech import EXAMPLE_HATE_SPEECH, EXAMPLE_NOT_HATE_SPEECH
 
 
@@ -46,5 +47,7 @@ async def test_detect_hate_speech_endpoint(
 ) -> None:
     resp = client.post(url=PATHS.detect_hate_speech, json=DetectHateSpeechRequest(text=text).model_dump())
     resp_model = _assert_hate_speech_response(resp=resp, is_hate_speech=is_hate_speech)
-    db_resp = await db_session.get(DetectHateSpeechSQLModel, resp_model.uuid)
-    assert db_resp, f"Expected a DetectHateSpeechResponse with uuid {resp_model.uuid} in DB"
+    llm_run = await db_session.get(LLMRunSQLModel, resp_model.llm_run_id)
+    assert llm_run, f"Expected a LLMRun with uuid {resp_model.llm_run_id} in DB"
+    hate_speech = await db_session.get(DetectHateSpeechSQLModel, resp_model.uuid)
+    assert hate_speech, f"Expected a DetectHateSpeechResponse with uuid {resp_model.uuid} in DB"

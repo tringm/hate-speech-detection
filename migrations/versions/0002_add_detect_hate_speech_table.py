@@ -2,7 +2,7 @@
 
 Revision ID: 0002
 Revises: 0001
-Create Date: 2024-01-21 20:45:41.028102
+Create Date: 2024-01-21 21:54:04.532462
 
 """
 from collections.abc import Sequence
@@ -27,6 +27,11 @@ def upgrade() -> None:
         sa.Column("reasoning", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("text", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("uuid", sqlmodel.sql.sqltypes.GUID(), server_default=sa.text("gen_random_uuid()"), nullable=False),
+        sa.Column("llm_run_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
+        sa.ForeignKeyConstraint(
+            ["llm_run_id"],
+            ["llm_run.uuid"],
+        ),
         sa.PrimaryKeyConstraint("uuid"),
     )
     op.create_index(op.f("ix_detect_hate_speech_result_uuid"), "detect_hate_speech_result", ["uuid"], unique=True)

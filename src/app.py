@@ -2,14 +2,14 @@ from collections.abc import Callable
 from typing import Annotated
 
 import uvicorn
-from fastapi import Depends, FastAPI, Request, status
+from fastapi import Depends, FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_async_session
-from src.db.models import DetectHateSpeechSQLModel
+from src.db.models import DetectHateSpeechSQLModel, LLMRunSQLModel
 from src.llm import LLMService
 from src.llm.detect_hate_speech import llm_detect_hate_speech
 
@@ -62,16 +62,23 @@ async def detect_hate_speech(
     session: Annotated[AsyncSession, Depends(get_async_session)],
     req: DetectHateSpeechRequest,
 ) -> DetectHateSpeechSQLModel:
-    llm_res = llm_detect_hate_speech(llm=llm_service, text=req.text)
-    resp = DetectHateSpeechSQLModel(
-        text=req.text,
-        is_hate_speech=llm_res.is_hate_speech,
-        target_of_hate=llm_res.target_of_hate,
-        reasoning=llm_res.reasoning,
-    )
-    session.add(resp)
+    text = req.text
+
+    llm_run = llm_detect_hate_speech(llm=llm_service, text=text)
+    llm_run_sql = LLMRunSQLModel(**llm_run.model_dump())
+    session.add(llm_run_sql)
     await session.commit()
-    return resp
+
+    if not llm_run.success or not llm_run.parsed_output:
+        await session.commit()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=llm_run.error)
+
+    detect_res = DetectHateSpeechSQLModel(text=text, llm_run_id=llm_run_sql.uuid, **llm_run.parsed_output.model_dump())
+    session.add(detect_res)
+
+    await session.commit()
+
+    return detect_res
 
 
 def main() -> None:

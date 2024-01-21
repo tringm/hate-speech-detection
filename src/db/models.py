@@ -55,3 +55,4 @@ class DetectHateSpeechSQLModel(UUIDModelMixin, DetectHateSpeech, table=True):
     __tablename__ = "detect_hate_speech_result"
 
     target_of_hate: list[str] = Field(sa_column=Column(ARRAY(String)))
+    llm_run_id: uuid_pkg.UUID = Field(foreign_key=f"{LLMRunSQLModel.__tablename__}.uuid")
