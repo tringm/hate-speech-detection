@@ -3,7 +3,7 @@ from httpx import Client, Response, codes
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.app import PATHS, DetectHateSpeechRequest
-from src.db.models import DetectHateSpeechSQLModel, LLMRunSQLModel
+from src.models import DetectHateSpeechSQLModel, LLMRunSQLModel
 from tests.llm.test_detect_hate_speech import EXAMPLE_HATE_SPEECH, EXAMPLE_NOT_HATE_SPEECH
 
 

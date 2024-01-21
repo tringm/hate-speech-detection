@@ -9,9 +9,9 @@ from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.db import get_async_session
-from src.db.models import DetectHateSpeechSQLModel, LLMRunSQLModel
 from src.llm import LLMService
 from src.llm.detect_hate_speech import llm_detect_hate_speech
+from src.models import DetectHateSpeechSQLModel, LLMRunSQLModel
 
 from .config import CONFIGS
 from .logging import logger

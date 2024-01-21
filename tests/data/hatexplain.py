@@ -4,8 +4,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
-from src.db.models import DetectHateSpeech
 from src.logging import get_logger
+from src.models import DetectHateSpeech
 from tests import DATA_DIR_PATH
 
 HATEXPLAIN_DATA_FILE = DATA_DIR_PATH / "hatexplain.ndjson.gz"

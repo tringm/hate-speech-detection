@@ -7,8 +7,8 @@ from llama_cpp.llama_types import CreateCompletionResponse
 from pydantic import BaseModel
 
 from src.config import CONFIGS, MODEL_DIR_PATH
-from src.db.models import LLMRun
 from src.logging import get_logger
+from src.models import LLMRun
 
 from .prompts import PromptTemplate
 

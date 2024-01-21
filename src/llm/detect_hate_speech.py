@@ -1,5 +1,5 @@
-from src.db.models import DetectHateSpeechResult
 from src.llm import LLMRunParsedModel, LLMService
+from src.models import DetectHateSpeechResult
 
 from .prompts import HATE_SPEECH_DETECTION_PROMPT, INPUT_TEXT_KEY
 

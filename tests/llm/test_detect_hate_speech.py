@@ -3,9 +3,9 @@ from pathlib import Path
 import pytest
 from sklearn import metrics
 
-from src.db.models import DetectHateSpeechResult
 from src.llm import LLMService
 from src.llm.detect_hate_speech import llm_detect_hate_speech
+from src.models import DetectHateSpeechResult
 from tests.data.hatexplain import load_hatexplain_detection_cases
 
 EXAMPLE_NOT_HATE_SPEECH = "We have enough problems in the world. Stop hating on each other"
