@@ -2,7 +2,7 @@
 log_level = "INFO"
 
 [default.llm]
-model_name = "phi-2.Q4_K_M.gguf"
+model_name = "phi-2.Q6_K.gguf"
 
 [default.llm.model_configs]
 n_ctx = 2048  # model context length
