@@ -40,6 +40,54 @@ In each case of the dataset, there are 3 annotators annotating whether a text is
 
 The test set only uses case which all 3 annotators unanimously agree on the text label, and group the label into Hate (Offensive and Hate) and Non-Hate (Normal).
 
+### LLM models
+- Besides Phi-2, [Llama 2](https://ai.meta.com/llama/) was also used. Llama 2 can also be used with Llama-CPP.
+- Llama 2 provides a nice feature of adding a "System prompt". For example
+  ```
+  <INST>
+  <<SYS>>
+  You are a helpful and diligent moderator that can accurately flag hate speech.
+  You are able to differentiating between strongly opinionated language and genuinely offensive content.
+  <</SYS>>
+  Determine if the following text is a hate speech.
+  {input_text}
+  </INST>
+  ```
+
+### Prompting strategy
+Prompting strategy used:
+- Zero-shot:
+  ```
+  Determine if the following text is a hate speech.
+  Explain in the reasoning and identify the target of hate if the text is a hate speech.
+
+  The text is enclosed in backticks:
+  `{input_text}`
+  ```
+
+- Few-Shot Prompting: Providing a definition of hate speech as context (e.g.: [UN definition](https://www.un.org/en/hate-speech/understanding-hate-speech/what-is-hate-speech))
+  ```
+  Hate speech can be defined as any kind of communication in speech, writing or behaviour, that attacks or uses
+   pejorative or discriminatory language with reference to a person or a group on the basis of who they are, in other
+   words, based on their religion, ethnicity, nationality, race, colour, descent, gender or other identity factor.”
+
+  Example:
+  Input Text: <example_non_hate>
+  Result: {"is_hate_speech":false,"target_of_hate":[],"reasoning":""}
+
+  Input Text:  <example_hate>
+  Result: {"is_hate_speech":false,"target_of_hate":[],"reasoning":""}
+  ```
+  While few-shot prompting can provide some improvements, it increases the context length and leads to slower generation.
+- Chain-of-thought Prompting (currently in used): Ask the LLm to returns the reasoning steps. For example, zero-shot with explanation:
+  ```
+  Determine if the following text is a hate speech.
+  Explain step-by-step the reasoning and identify the target of hate if the text is a hate speech.
+
+  The text is enclosed in backticks: ...
+  ```
+  **NOTE**: GPT 3.5 performs much better with this strategy, even better with few-shot with COT. The model does return good step-by-step reasoning in contrast to Llama 2 and Phi which doesn't really have COT.
+
 
 ## Key Learnings
 - Llama CPP supports [GBNF grammar](https://github.com/ggerganov/llama.cpp/blob/master/grammars/README.md) which allow forcing prompt output in a certain format (e.g.: JSON).
